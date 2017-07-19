@@ -21,3 +21,6 @@ docker exec -it predictapi bash
 ```
 buildRunCheck.sh - Build the docker image, run it and check that it's running with 'docker ps'
 ```
+
+POST command with curl:
+curl -X POST -F "file=@/path/to/file" localhost:5000
