@@ -77,6 +77,18 @@ def handleModelsRequest(rid):
     else:
         return jsonify({'Message':'Models not ready or don\'t exist, check with /status/<rid>'})
 
+def predict(rid, mid, df):
+    return pandas.DataFrame()
+
+@app.route('/predict/<string:rid>/<string:mid>', methods=['POST'])
+def handlePredictRequest(rid, mid):
+    file = request.files['file']
+    file.save('tempFiles/'+file.filename)
+    input_df = pandas.read_csv('tempFiles/'+file.filename)
+    output_df = predict(rid, mid, input_df)
+    jsonDict = output_df.to_dict()
+    return jsonify(jsonDict)
+
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')
 
