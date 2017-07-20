@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pandas
 import os
-import md5
+import hashlib
 
 UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
@@ -18,22 +18,25 @@ def allowed_file(filename):
 
 # Saves job file to specified location
 def enqueueJob(df):
-    rid=md5.md5(str(df)).hexdigest()
+    #rid=hashlib.md5(str(df)).hexdigest()
+    dfs = str(df)
+    rid = hashlib.md5(dfs.encode()).hexdigest()
+
     df.to_csv('inputFiles/'+rid+'.csv')
     return rid
 
-@app.route('/')
-def dataForm():
-    return render_template("dataForm.html")
+#@app.route('/')
+#def dataForm():
+#    return render_template("dataForm.html")
 
 @app.route('/', methods=['GET','POST'])
 def handlePost():
     if request.method == 'POST':
         file = request.files['file']
-	if file and allowed_file(file.filename):
-	    file.save('tempFiles/'+file.filename)
-	    df = pandas.read_csv('tempFiles/'+file.filename)
-	    rid = enqueueJob(df)
+        if file and allowed_file(file.filename):
+            file.save('tempFiles/'+file.filename)
+            df = pandas.read_csv('tempFiles/'+file.filename)
+            rid = enqueueJob(df)
             return rid + '\n'
 	    #rid = md5.md5(str(file.read())).hexdigest()
 	    #filename = rid+os.path.splitext(file.filename)[1] #[1] is the extension of the file
@@ -64,7 +67,7 @@ def handleRequest(rid):
 def getModels(rid):
     (done, msg) = getReqStatus(rid)
     if done:
-	return pandas.read_csv(modelsFolder+'/'+rid+'.csv')
+	    return pandas.read_csv(modelsFolder+'/'+rid+'.csv')
     else:
         return None
 
