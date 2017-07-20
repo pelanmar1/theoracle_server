@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, jsonify
 import pandas
 import os
 import hashlib
+import sys
+sys.path.insert(0, '/app/src')
+#import predictionAPI
 
 UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
@@ -29,7 +32,7 @@ def enqueueJob(df):
 #def dataForm():
 #    return render_template("dataForm.html")
 
-@app.route('/', methods=['GET','POST'])
+@app.route('/train', methods=['GET','POST'])
 def handlePost():
     if request.method == 'POST':
         file = request.files['file']
