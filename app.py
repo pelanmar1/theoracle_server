@@ -61,6 +61,22 @@ def handleRequest(rid):
     jsonDict = {'done': done, 'message':msg}
     return jsonify(jsonDict)
 
+def getModels(rid):
+    (done, msg) = getReqStatus(rid)
+    if done:
+	return pandas.read_csv(modelsFolder+'/'+rid+'.csv')
+    else:
+        return None
+
+@app.route('/getmodels/<string:rid>')
+def handleModelsRequest(rid):
+    df = getModels(rid)
+    if df:
+        jsonDict = df.to_dict()
+        return jsonify(jsonDict)
+    else:
+        return jsonify({'Message':'Models not ready or don\'t exist, check with /status/<rid>'})
+
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')
 
