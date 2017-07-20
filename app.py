@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas
 import os
 import md5
@@ -6,6 +6,7 @@ import md5
 UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
 
+inputFolder = 'inputFiles'
 modelsFolder = 'models'
 
 app = Flask(__name__)
@@ -43,12 +44,22 @@ def handlePost():
     return "not ok"
 
 def getReqStatus(rid):
-    return (False, 'Ok') 
+    done = False
+    msg = ""
+    if os.path.isfile(modelsFolder+'/'+rid+'.csv'):
+        done = True
+        msg = 'Job is complete'
+    elif os.path.isfile(inputFolder+'/'+rid+'.csv'):
+        msg = 'Job is in queue'
+    else:
+        msg = 'Job does not exist'
+    return (done, msg)
 
-@app.route('/status/<string:rid>', methods=['GET'])
-def handleRequest():
-    return rid
-    #(done, msg) = getReqStatus(rid)
+@app.route('/status/<string:rid>')
+def handleRequest(rid):
+    (done, msg) = getReqStatus(rid)
+    jsonDict = {'done': done, 'message':msg}
+    return jsonify(jsonDict)
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')
