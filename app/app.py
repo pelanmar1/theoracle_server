@@ -10,6 +10,8 @@ sys.path.insert(0, '/app/src')
 # UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
 REQUESTS_FOLDER = "/app/data/requests/"
+#MODELS_FOLDER = "/app/data/models/"
+tmp_dir = "/app/data/tmp/"
 
 inputFolder = 'inputFiles'
 modelsFolder = 'models'
@@ -44,19 +46,17 @@ def enqueueJob(df):
 
 @app.route('/train', methods=['GET','POST'])
 def handlePost():
-    tmp_dir = "/app/data/tmp/"
-
     writeLogMsg("handlePost")
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
             dt = datetime.datetime.now()
             dest_fn = "%s%s.csv" % (tmp_dir, dt.strftime("%s"))
-            writeLogMsg("\tUploaded File "+ dest_fn)
             file.save(dest_fn)
+            writeLogMsg("\tUploaded File " + dest_fn)
             df = pandas.read_csv(dest_fn)
             rid = enqueueJob(df)
-            os.remove(dest_fn)
+            #os.remove(dest_fn)
             return rid
 
     return "not ok"
@@ -102,8 +102,8 @@ def predict(rid, mid, df):
 @app.route('/predict/<string:rid>/<string:mid>', methods=['POST'])
 def handlePredictRequest(rid, mid):
     file = request.files['file']
-    file.save('tempFiles/'+file.filename)
-    input_df = pandas.read_csv('tempFiles/'+file.filename)
+    file.save(tmp_dir+file.filename)
+    input_df = pandas.read_csv(tmp_dir+file.filename)
     output_df = predict(rid, mid, input_df)
     jsonDict = output_df.to_dict()
     return jsonify(jsonDict)
