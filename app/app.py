@@ -9,6 +9,7 @@ sys.path.insert(0, '/app/src')
 
 # UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
+REQUESTS_FOLDER = "/app/data/requests/"
 
 inputFolder = 'inputFiles'
 modelsFolder = 'models'
@@ -29,11 +30,10 @@ def allowed_file(filename):
 
 # Saves job file to specified location
 def enqueueJob(df):
-    requests_dir = "/app/data/requests/"
     dfs = str(df)
     rid = hashlib.md5(dfs.encode()).hexdigest()
     writeLogMsg("\tenqueueJob() rid " + rid)
-    dest_fn = requests_dir+rid+'.csv'
+    dest_fn = REQUESTS_FOLDER+rid+'.csv'
     if os.path.isfile(dest_fn) == False:
         df.to_csv(dest_fn)
     return rid
@@ -57,7 +57,7 @@ def handlePost():
             df = pandas.read_csv(dest_fn)
             rid = enqueueJob(df)
             os.remove(dest_fn)
-            return rid + '\n'
+            return rid
 
     return "not ok"
 
@@ -68,7 +68,7 @@ def getReqStatus(rid):
     if os.path.isfile(modelsFolder+'/'+rid+'.csv'):
         done = True
         msg = 'Job is complete'
-    elif os.path.isfile(inputFolder+'/'+rid+'.csv'):
+    elif os.path.isfile(REQUESTS_FOLDER+rid+'.csv'):
         msg = 'Job is in queue'
     else:
         msg = 'Job does not exist'
