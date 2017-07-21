@@ -3,6 +3,9 @@ import pandas
 import os
 import hashlib
 import datetime
+import sys
+sys.path.insert(0, '/app/src')
+#import predictionAPI
 
 # UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
@@ -39,7 +42,7 @@ def enqueueJob(df):
 #def dataForm():
 #    return render_template("dataForm.html")
 
-@app.route('/', methods=['GET','POST'])
+@app.route('/train', methods=['GET','POST'])
 def handlePost():
     tmp_dir = "/app/data/tmp/"
 
