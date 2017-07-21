@@ -2,15 +2,23 @@ from flask import Flask, render_template, request, jsonify
 import pandas
 import os
 import hashlib
+import datetime
 
-UPLOAD_FOLDER = 'inputFiles'
+# UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
 
 inputFolder = 'inputFiles'
 modelsFolder = 'models'
 
+def writeLogMsg(msg):
+    dt = datetime.datetime.now()
+    with open("request.log", "a") as myfile:
+        myfile.write("%s\t%s\n" % (dt, msg))
+
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
 
 # Right now only checks extension but can be edited to check any number of things abour the file to validate it
 def allowed_file(filename):
@@ -18,11 +26,13 @@ def allowed_file(filename):
 
 # Saves job file to specified location
 def enqueueJob(df):
-    #rid=hashlib.md5(str(df)).hexdigest()
+    requests_dir = "/app/data/requests/"
     dfs = str(df)
     rid = hashlib.md5(dfs.encode()).hexdigest()
-
-    df.to_csv('inputFiles/'+rid+'.csv')
+    writeLogMsg("\tenqueueJob() rid " + rid)
+    dest_fn = requests_dir+rid+'.csv'
+    if os.path.isfile(dest_fn) == False:
+        df.to_csv(dest_fn)
     return rid
 
 #@app.route('/')
@@ -31,22 +41,25 @@ def enqueueJob(df):
 
 @app.route('/', methods=['GET','POST'])
 def handlePost():
+    tmp_dir = "/app/data/tmp/"
+
+    writeLogMsg("handlePost")
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            file.save('tempFiles/'+file.filename)
-            df = pandas.read_csv('tempFiles/'+file.filename)
+            dt = datetime.datetime.now()
+            dest_fn = "%s%s.csv" % (tmp_dir, dt.strftime("%s"))
+            writeLogMsg("\tUploaded File "+ dest_fn)
+            file.save(dest_fn)
+            df = pandas.read_csv(dest_fn)
             rid = enqueueJob(df)
+            os.remove(dest_fn)
             return rid + '\n'
-	    #rid = md5.md5(str(file.read())).hexdigest()
-	    #filename = rid+os.path.splitext(file.filename)[1] #[1] is the extension of the file
-	    #file.stream.seek(0) # Go back to the start of the file
-	    #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            #return filename+'\n'
 
     return "not ok"
 
 def getReqStatus(rid):
+    writeLogMsg("getReqStatus(%s)" % rid)
     done = False
     msg = ""
     if os.path.isfile(modelsFolder+'/'+rid+'.csv'):

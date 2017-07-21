@@ -12,6 +12,7 @@ docker run -i -p 5000:5000 \
     --name predictapi  \
     -v /Users/mielliot/Dropbox/mmac/gitent/theoracle:/app/src \
     -v /Users/mielliot/Dropbox/mmac/gitent/flasktest/app:/app/app \
+    -v /Users/mielliot/Dropbox/mmac/gitent/flasktest/data:/app/data \
     -d flask-tutorial
 ```
 
