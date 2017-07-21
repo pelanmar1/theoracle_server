@@ -60,6 +60,9 @@ WORKDIR /app/app
 # RUN pip install -r requirements.txt
 
 
+RUN mkdir ../data
+RUN mkdir ../data/requests
+RUN mkdir ../data/tmp
 
 #-------------------------------
 # App
