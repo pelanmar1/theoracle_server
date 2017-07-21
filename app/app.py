@@ -54,7 +54,8 @@ def handlePost():
             dest_fn = "%s%s.csv" % (tmp_dir, dt.strftime("%s"))
             writeLogMsg("\tUploaded File "+ dest_fn)
             file.save(dest_fn)
-            df = pandas.read_csv(dest_fn)
+            df = pandas.read_csv(dest_fn, header=0)
+            writeLogMsg(df.describe())
             rid = enqueueJob(df)
             os.remove(dest_fn)
             return rid
