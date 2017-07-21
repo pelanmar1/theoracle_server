@@ -54,7 +54,8 @@ def handlePost():
             dest_fn = "%s%s.csv" % (tmp_dir, dt.strftime("%s"))
             file.save(dest_fn)
             writeLogMsg("\tUploaded File " + dest_fn)
-            df = pandas.read_csv(dest_fn)
+            df = pandas.read_csv(dest_fn, header=0)
+            writeLogMsg(df.describe())
             rid = enqueueJob(df)
             #os.remove(dest_fn)
             return rid
@@ -83,7 +84,7 @@ def handleRequest(rid):
 def getModels(rid):
     (done, msg) = getReqStatus(rid)
     if done:
-	    return pandas.read_csv(modelsFolder+'/'+rid+'.csv')
+        return pandas.read_csv(modelsFolder+'/'+rid+'.csv')
     else:
         return None
 
