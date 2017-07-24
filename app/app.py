@@ -4,13 +4,19 @@ import os
 import hashlib
 import datetime
 import sys
+import glob
 sys.path.insert(0, '/app/src')
-#import predictionAPI
+from predictionAPI import predictionAPI
+#import train
+import subprocess
 
 # UPLOAD_FOLDER = 'inputFiles'
 ALLOWED_EXTENSIONS = set(['csv'])
 REQUESTS_FOLDER = "/app/data/requests/"
-#MODELS_FOLDER = "/app/data/models/"
+TRAINING_FOLDER = "/app/data/training/"
+MODELS_FOLDER = "/app/data/models/"
+RESULTS_FOLDER = "/app/data/results/"
+
 tmp_dir = "/app/data/tmp/"
 
 inputFolder = 'inputFiles'
@@ -66,11 +72,13 @@ def getReqStatus(rid):
     writeLogMsg("getReqStatus(%s)" % rid)
     done = False
     msg = ""
-    if os.path.isfile(modelsFolder+'/'+rid+'.csv'):
+    if os.path.isfile(RESULTS_FOLDER+rid+'.csv'):
         done = True
         msg = 'Job is complete'
     elif os.path.isfile(REQUESTS_FOLDER+rid+'.csv'):
         msg = 'Job is in queue'
+    elif os.path.isfile(TRAINING_FOLDER+rid+'.csv'):
+        msg = 'Job is being processed (model is being trained)'
     else:
         msg = 'Job does not exist'
     return (done, msg)
@@ -84,30 +92,62 @@ def handleRequest(rid):
 def getModels(rid):
     (done, msg) = getReqStatus(rid)
     if done:
-        return pandas.read_csv(modelsFolder+'/'+rid+'.csv')
+        return pandas.read_csv(RESULTS_FOLDER+rid+'.csv')
     else:
         return None
+
+def cleanDictKeys(mydict):
+    for key in mydict.keys():
+        mydict[key] = str(mydict)
 
 @app.route('/getmodels/<string:rid>')
 def handleModelsRequest(rid):
     df = getModels(rid)
-    if df:
-        jsonDict = df.to_dict()
-        return jsonify(jsonDict)
+    if df is not None:
+        jsonDict = df.to_json()
+        writeLogMsg(jsonDict)
+        return jsonDict
     else:
         return jsonify({'Message':'Models not ready or don\'t exist, check with /status/<rid>'})
-
-def predict(rid, mid, df):
-    return pandas.DataFrame()
 
 @app.route('/predict/<string:rid>/<string:mid>', methods=['POST'])
 def handlePredictRequest(rid, mid):
     file = request.files['file']
     file.save(tmp_dir+file.filename)
     input_df = pandas.read_csv(tmp_dir+file.filename)
-    output_df = predict(rid, mid, input_df)
-    jsonDict = output_df.to_dict()
-    return jsonify(jsonDict)
+
+    (done,msg) = getReqStatus(rid)
+    if done:
+        output_df = predictionAPI.predict(futureDf=input_df, reqId=rid, modelId=mid)
+        writeLogMsg("WORKING -X-X-X-X-X-X-X-X-X-X-X-X--X-X-X-")
+        jsonDict = output_df.to_json()
+        return jsonDict
+
+    return msg
+
+@app.route('/run')
+def runJob():
+    #os.system("python train.py")
+    output = subprocess.check_output("python train.py", shell=True)
+    #writeLogMsg('ok')
+    return 'ok'
+
+    # dequeueJob
+    '''listFiles = glob.glob(REQUESTS_FOLDER + '*')
+    df = None
+    rid = ''
+    if len(listFiles) > 0:
+        firstJobName = min(listFiles, key=os.path.getctime)
+        df = pandas.read_csv(firstJobName)
+        rid = firstJobName.split('/')[-1].split('.')[0]
+
+    # save df as csv in models folder to test
+    if df is not None:
+        writeLogMsg('About to save to csv')
+        df.to_csv(MODELS_FOLDER+rid+'.csv')
+
+    return 'done'
+    '''
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')

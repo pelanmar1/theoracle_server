@@ -69,7 +69,10 @@ WORKDIR /app/app
 
 RUN mkdir ../data
 RUN mkdir ../data/requests
+RUN mkdir ../data/training
+RUN mkdir ../data/models
 RUN mkdir ../data/tmp
+RUN mkdir ../data/results
 
 #-------------------------------
 # App
