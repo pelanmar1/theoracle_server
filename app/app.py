@@ -43,7 +43,7 @@ def enqueueJob(df):
     writeLogMsg("\tenqueueJob() rid " + rid)
     dest_fn = REQUESTS_FOLDER+rid+'.csv'
     if os.path.isfile(dest_fn) == False:
-        df.to_csv(dest_fn)
+        df.to_csv(dest_fn, header=False)
     return rid
 
 #@app.route('/')
@@ -60,7 +60,7 @@ def handlePost():
             dest_fn = "%s%s.csv" % (tmp_dir, dt.strftime("%s"))
             file.save(dest_fn)
             writeLogMsg("\tUploaded File " + dest_fn)
-            df = pandas.read_csv(dest_fn, header=0)
+            df = pandas.read_csv(dest_fn, index_col=0, header=None, parse_dates=True)
             writeLogMsg(df.describe())
             rid = enqueueJob(df)
             #os.remove(dest_fn)

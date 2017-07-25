@@ -67,12 +67,12 @@ WORKDIR /app/app
 # RUN pip install -r requirements.txt
 
 
-RUN mkdir ../data
-RUN mkdir ../data/requests
-RUN mkdir ../data/training
-RUN mkdir ../data/models
-RUN mkdir ../data/tmp
-RUN mkdir ../data/results
+# RUN mkdir ../data
+# RUN mkdir ../data/requests
+# RUN mkdir ../data/training
+# RUN mkdir ../data/models
+# RUN mkdir ../data/tmp
+# RUN mkdir ../data/results
 
 #-------------------------------
 # App
