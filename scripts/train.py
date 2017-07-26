@@ -154,7 +154,7 @@ def trainData():
         # df.index = df.index.map(dt.fromtimestamp)
         #
         # print(df)
-        results_df = predictionAPI.doTrainRequest(rid, RESULTS_FOLDER, MODELS_FOLDER, df)
+        results_df = predictionAPI.doTrainRequest(rid, MODELS_FOLDER, df)
 
         # Store model results into a csv file, named with the reqId
         #modelResults.index.name = "modelId"
