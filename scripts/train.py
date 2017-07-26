@@ -12,6 +12,7 @@ import glob
 import math
 import os
 from regressions.scikit import Regression
+import funcs
 
 
 
@@ -57,26 +58,18 @@ def convertTs(df):
     return converted_ts
 
 
-def dequeueJob():
-    """
-    Finds oldest job to train and moves it from request to training folder.
 
-    Output:
-    The dataframe and request ID of the dequeued job.
-    """
 
-    print("Dqing job")
-    listFiles = glob.glob(REQUESTS_FOLDER + '*.csv')
-    if len(listFiles) > 0:
-        firstJobPath = min(listFiles, key=os.path.getctime)
-        print("Found job with path ", firstJobPath)
-        df = pd.read_csv(firstJobPath, index_col=0, header=None, parse_dates=True)
-        rid = os.path.basename(firstJobPath).split('.')[0]
-        print("Request Id ", rid)
-        #os.system('mv '+firstJobPath+' '+TRAINING_FOLDER+os.path.basename(firstJobPath)) # moves job
-        return (df, rid)
-    else:
-        return (None, "")
+
+'''
+Expecting file to be in the format
+,date,y
+0,2017-07-25,57.0
+1,2017-07-26,16.0
+2,2017-07-27,14.0
+'''
+
+
 
 
 def deleteJob(rid):
@@ -146,9 +139,22 @@ def trainData():
 
         # modelResults = predictionAPI.train(reqId, ts, algorithmObjects)
         #df.index = df.index.to_datetime(format="%s")
-        df.index = df.index.map(x, pd.to_datetime(format="%s"))
-        print(df)
-        #results_df = predictionAPI.doTrainRequest(rid, RESULTS_DIR, MODELS_FOLDER, data_df)
+
+
+        # print(df)
+        # Code to test and convert series
+
+        # a = [isinstance(x, np.int64) for x in df.index.values]
+        # if a.count(False):
+        #     # Index is all timestamps
+        #     df.index = df.index.map(dt.fromtimestamp)
+        #
+        # print("DF Types ", df.dtypes)
+        #
+        # df.index = df.index.map(dt.fromtimestamp)
+        #
+        # print(df)
+        results_df = predictionAPI.doTrainRequest(rid, RESULTS_FOLDER, MODELS_FOLDER, df)
 
         # Store model results into a csv file, named with the reqId
         #modelResults.index.name = "modelId"
