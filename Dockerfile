@@ -24,7 +24,7 @@ RUN apt-get install -y curl grep sed dpkg && \
     apt-get clean
 
 # Install the cron service
-RUN apt-get install cron -y
+# RUN apt-get install cron -y
 RUN apt-get -y install python3-dev
 RUN apt-get install libffi-dev
 ENV PATH /opt/conda/bin:$PATH
@@ -37,7 +37,7 @@ RUN apt-get -y install libevent-dev
 RUN conda install gcc
 RUN pip install fbprophet
 RUN pip install pyflux
-# RUN pip install Pandas
+
 
 #-------------------------------
 # Cron
@@ -46,15 +46,15 @@ RUN pip install pyflux
 RUN apt-get install cron -y
 
 # Add our crontab file
-ADD cron.conf /var/conf/cron.conf
+# ADD cron.conf /var/conf/cron.conf
 
 # Add a cron script file
-ADD cron.sh /var/scripts/cron.sh
+# ADD cron.sh /var/scripts/cron.sh
 
 # Use the crontab file.
-RUN crontab /var/conf/cron.conf
+# RUN crontab /var/conf/cron.conf
 
-RUN service cron start
+# RUN service cron start
 
 #-------------------------------
 # Requirements
@@ -66,22 +66,13 @@ WORKDIR /app/app
 
 # RUN pip install -r requirements.txt
 
-
-# RUN mkdir ../data
-# RUN mkdir ../data/requests
-# RUN mkdir ../data/training
-# RUN mkdir ../data/models
-# RUN mkdir ../data/tmp
-# RUN mkdir ../data/results
-
 #-------------------------------
 # App
 
 # COPY . /app
 
 # ENTRYPOINT ["/tini", "--"]
+# ENTRYPOINT [ "python" ]
+# CMD [ "app.py" ]
 
-ENTRYPOINT [ "python" ]
-CMD [ "app.py" ]
-
-# CMD [ "/bin/bash" ]
+CMD ["/bin/bash", "/app/scripts/startup.sh"]

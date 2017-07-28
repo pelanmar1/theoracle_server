@@ -55,7 +55,7 @@ def handlePost():
    funcs.writeLogMsg("handlePost")
    if request.method == 'POST':
        file = request.files['file']
-       if file and allowed_file(file.filename):
+       if file and funcs.allowedFile(file.filename):
            dt = datetime.datetime.now()
            dest_fn = "%s%s.csv" % (tmp_dir, dt.strftime("%s"))
            file.save(dest_fn)
@@ -74,7 +74,9 @@ def getReqStatus(rid):
    funcs.writeLogMsg("getReqStatus(%s)" % rid)
    done = False
    msg = ""
-   if os.path.isfile(funcs.getResultsFn(rid)):
+   rfn = funcs.getResultsFn(rid)
+   funcs.writeLogMsg("Request Fn = %s" % rfn)
+   if os.path.isfile(rfn):
        done = True
        msg = 'Job is complete'
    elif os.path.isfile(funcs.getRequestTrainingDataFn(rid)):
@@ -112,10 +114,12 @@ def handleModelsRequest(rid):
 #------------------------------
 @app.route('/predict/<string:rid>/<string:mid>', methods=['POST'])
 def handlePredictRequest(rid, mid):
-
+    funcs.writeLogMsg("handlePredictRequest")
     file = request.files['file']
-    file.save(tmp_dir+file.filename)
-    predict_dates_df = pandas.read_csv(tmp_dir+file.filename)
+    fn = tmp_dir+file.filename
+    file.save(fn)
+    funcs.writeLogMsg("readin File " + fn)
+    predict_dates_df = pandas.read_csv(tmp_dir+file.filename, index_col=0)
     predict_dates_df.columns = ["date"]
     funcs.writeLogMsg("Predict Dates")
     funcs.writeLogMsg(predict_dates_df.head())

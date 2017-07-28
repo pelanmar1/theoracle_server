@@ -7,55 +7,76 @@ import sys
 import glob
 import funcs
 
-REQUESTS_FOLDER = "/app/data/requests/"
+
 ALLOWED_EXTENSIONS = set(['csv'])
 
 # Right now only checks extension but can be edited to check any number of things abour the file to validate it
-def allowed_file(filename):
+def allowedFile(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 def writeLogMsg(msg):
     dt = datetime.datetime.now()
     with open("request.log", "a") as myfile:
         myfile.write("%s\t%s\n" % (dt, msg))
 
-def dequeueJob():
-    #print("Dqing job")
-    listFiles = glob.glob(REQUESTS_FOLDER + '*.csv')
-    if len(listFiles) > 0:
-        firstJobPath = min(listFiles, key=os.path.getctime)
-        rid = os.path.basename(firstJobPath).split('.')[0]
-        #print("Found job with path ", firstJobPath)
-        #df = pd.read_csv(firstJobPath, index_col=0, header=0, parse_dates=True)
-        df = getRequestByID(req_id)
-        #print("Request Id ", rid)
-        #os.system('mv '+firstJobPath+' '+TRAINING_FOLDER+os.path.basename(firstJobPath)) # moves job
-        return (df, rid)
-    else:
-        return (None, "")
-
 def ensure_dir(file_path):
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def getRequestDir(rid):
-    return REQUESTS_FOLDER + rid + "/"
+def getResultsDir(rid):
+    return "/app/data/results/" + rid + "/"
+
+def getRequestsDir():
+    REQUESTS_FOLDER = "/app/data/requests/"
+    return REQUESTS_FOLDER
+
+def getRequestFn(rid):
+    return getRequestsDir() + rid + ".txt"
+
+def deleteRequest(rid):
+    fn = getRequestFn(rid)
+    os.remove(fn)
 
 def getModelsDir(rid):
-    dir = getRequestDir(rid) + "models/"
+    dir = getResultsDir(rid) + "models/"
     ensure_dir(dir)
     return dir
-
-def getResultsDir(rid):
-    return getRequestDir(rid)
 
 def getResultsFn(rid):
     return getResultsDir(rid) + "results.csv"
 
 def getRequestTrainingDataFn(rid):
-    return getRequestDir(rid) + "train.csv"
+    return getResultsDir(rid) + "train.csv"
+
+def getPendingRequestIds():
+    dir = getRequestsDir()
+    files = glob.glob(dir + '*.txt')
+    files1 = [file.replace('.txt', '') for file in files]
+    rids = [file.replace(dir, '') for file in files1]
+    return rids
+
+def getNextRequestId():
+    rids = getPendingRequestIds()
+    print("Pending Requests")
+    print(rids)
+    if len(rids)==0:
+        return None
+    else:
+        rid = rids[0]
+        print("Next Req Id = ", rid)
+        return rid
+
+def dequeueJob():
+    print("Dqing job")
+    rid = getNextRequestId()
+    if rid is not None:
+        data_df = getRequestTrainingData(rid)
+        print("Got Data ")
+        print(data_df.head())
+        return (data_df, rid)
+    else:
+        return (None, "")
 
 def getRequestTrainingData(req_id):
     fn = getRequestTrainingDataFn(req_id)
@@ -75,6 +96,10 @@ def saveResultsDF(rid, results_df):
     writeLogMsg("Saving Result To '%s'" % fn)
     results_df.to_csv(fn)
 
+def touch(path):
+    with open(path, 'a'):
+        os.utime(path, None)
+
 # Saves job file to specified location
 def enqueueJob(df):
     writeLogMsg("Enqueue ")
@@ -82,15 +107,15 @@ def enqueueJob(df):
     dfs = str(df)
     rid = hashlib.md5(dfs.encode()).hexdigest()
     writeLogMsg("\tenqueueJob() rid " + rid)
-    ensure_dir(getRequestDir(rid))
+    ensure_dir(getResultsDir(rid))
     dest_fn = getRequestTrainingDataFn(rid)
     if os.path.isfile(dest_fn) == False:
         df.to_csv(dest_fn, header=False)
+
+    touch(getRequestFn(rid))
     return rid
 
 def getModels(rid):
-#   (done, msg) = getReqStatus(rid)
-#   if done:
     results_fn = funcs.getResultsFn(rid)
     if os.path.isfile(results_fn):
        writeLogMsg("Loading results file " + results_fn)
@@ -99,28 +124,28 @@ def getModels(rid):
     else:
         return None
 
-"""
- Input:
-  index = a 0 to n based index numbering the samples
-  Col 1 = A timestamp or date (2017-07-0)
-  Col 2 = The y floating point values
- Output:
-  index = a 0 to n based index numbering the samples
-  date = A Datetime (2017-07-0)
-  y = The y floating point values
-"""
-def cleanUpDf(df):
-    writeLogMsg("Before Cleaning")
-    writeLogMsg(df.head())
-    writeLogMsg(df.dtypes)
-    a = [isinstance(x, np.int64) for x in df[1].values]
-    if a.count(False):
-        # Index is all timestamps
-        df[1] = df[1].map(datetime.datetime.fromtimestamp)
-
-    df.columns = ["date", "y"]
-
-    writeLogMsg("After Cleaning")
-    writeLogMsg(df.head())
-
-    return df
+# """
+#  Input:
+#   index = a 0 to n based index numbering the samples
+#   Col 1 = A timestamp or date (2017-07-0)
+#   Col 2 = The y floating point values
+#  Output:
+#   index = a 0 to n based index numbering the samples
+#   date = A Datetime (2017-07-0)
+#   y = The y floating point values
+# """
+# def cleanUpDf(df):
+#     writeLogMsg("Before Cleaning")
+#     writeLogMsg(df.head())
+#     writeLogMsg(df.dtypes)
+#     a = [isinstance(x, np.int64) for x in df[1].values]
+#     if a.count(False):
+#         # Index is all timestamps
+#         df[1] = df[1].map(datetime.datetime.fromtimestamp)
+#
+#     df.columns = ["date", "y"]
+#
+#     writeLogMsg("After Cleaning")
+#     writeLogMsg(df.head())
+#
+#     return df

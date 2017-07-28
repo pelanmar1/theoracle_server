@@ -14,6 +14,7 @@ docker run -i -p 5000:5000 \
     -v /Users/mielliot/Dropbox/mmac/gitent/flasktest/app:/app/app \
     -v /Users/mielliot/Dropbox/mmac/gitent/flasktest/data:/app/data \
     -v /Users/mielliot/Dropbox/mmac/gitent/flasktest/scripts:/app/scripts \
+    -v /Users/mielliot/Dropbox/mmac/gitent/flasktest/conf:/var/conf \
     -d flask-tutorial
 ```
 
@@ -31,3 +32,10 @@ POST command with curl:
 
 curl -X POST -F "file=@/path/to/file" localhost:5000
 ```
+
+
+TODO LIST
+
+Remove all tmp files over an hour old in the cron job
+Change the tmp file naming scheme to something uniq so files dont collide
+Need a way to clean up requests that cause train.py to crash
