@@ -39,3 +39,4 @@ TODO LIST
 Remove all tmp files over an hour old in the cron job
 Change the tmp file naming scheme to something uniq so files dont collide
 Need a way to clean up requests that cause train.py to crash
+Get LinearReg and PyFlux working again

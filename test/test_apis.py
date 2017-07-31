@@ -13,7 +13,7 @@ import testlib
 # Must have the api server running at the following location
 base_url = 'http://localhost:5000/'
 
-request_id = "a6b8c27d44e7061e78c0de5ffc5f6604"
+#request_id = "a6b8c27d44e7061e78c0de5ffc5f6604"
 
 fn = "data/intl_airline_passengers.csv"
 (success, request_id) = testlib.submitTrainingRequest(base_url, fn)
