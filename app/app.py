@@ -19,6 +19,9 @@ tmp_dir = "/app/data/tmp/"
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return 'Server is running.'
 
 #------------------------------
 @app.route('/runtraining/<string:rid>', methods=['GET'])

@@ -1,19 +1,20 @@
 #!/bin/bash
 
-docker build -t predictapi:latest .
+# Uncomment if first time
+# docker build -t predictapi:latest .
+
+
 docker stop predictapi
 docker rm predictapi
 docker run -i -p 5000:5000 \
 	--name predictapi  \
 	-v /Users/t-pelanz/Documents/Microsoft/theoracle:/app/src \
+    -v /Users/t-pelanz/Documents/Microsoft/flasktest/app:/app/app \
+    -v /Users/t-pelanz/Documents/Microsoft/flasktest/data:/app/data \
+    -v /Users/t-pelanz/Documents/Microsoft/flasktest/scripts:/app/scripts \
+    -v /Users/t-pelanz/Documents/Microsoft/flasktest/conf:/var/conf \
 	-d predictapi
 
-#sleep 1s # this is used because when containers don't work they quit after 1 sec and don't show up on docker ps
-#docker ps
 
 exit 0
 
-'
-
-
-'
