@@ -5,7 +5,8 @@ RUN apt-get -y install gcc
 
 # RUN apt-get install -y python-pip python-dev
 
-
+# Install PHP
+FROM php:7.0-cli
 
 RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificates \
     libglib2.0-0 libxext6 libsm6 libxrender1 \
@@ -37,7 +38,7 @@ RUN apt-get -y install libevent-dev
 RUN conda install gcc
 RUN pip install fbprophet
 RUN pip install pyflux
-
+RUN pip install -U flask-cors
 
 #-------------------------------
 # Cron

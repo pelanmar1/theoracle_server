@@ -8,6 +8,7 @@ import sys
 import glob
 import funcs
 import pickle
+from flask_cors import CORS, cross_origin
 
 
 sys.path.insert(0, '/app/src')
@@ -18,6 +19,7 @@ import subprocess
 tmp_dir = "/app/data/tmp/"
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def home():
@@ -138,6 +140,20 @@ def handlePredictRequest(rid, mid):
 
     jsonStr = predictions_df.to_json(date_format='iso', orient='split')
     return jsonStr
+
+#------------------------------
+@app.route('/getPending')
+def handleGetPendingRequest():
+    funcs.writeLogMsg("handleAllModels")
+    rids = funcs.getPendingRequestIds()
+    if rids is not None:
+       jsonDict = jsonify(results = rids)
+       funcs.writeLogMsg(str(jsonDict))
+       return jsonDict
+    else:
+       return jsonify({'Message':'There are no models pending'})
+
+#------------------------------
 
 #------------------------------
 # @app.route('/run')
