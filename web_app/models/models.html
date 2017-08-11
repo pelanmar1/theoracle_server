@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Outlook Mobile Prediction Service</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="models.js"></script>
+  <link rel="stylesheet" href="../res/css/app.css">
+</head>
+<body>
+  
+
+<div class="container-fluid">
+  <!-- NAV-BAR -->
+  <nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">The Oracle</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="../home/home.html">Home</a></li>
+      <li><a href="../requests/requests.html">Requests</a></li>
+    </ul>
+  </div>
+</nav>
+
+</div>
+
+
+<div class="container">
+  
+  <div>
+    <h1 style="display:inline-block;">Request<h3 style="display:inline-block; margin-left:10px;"><code id="curr_req_id">7a84518a5fe7fc34a1abb806193386ee</code></h3></h1>
+</div>
+	<div class="row">
+        <div class="col-md-6">
+        <!-- Nav tabs --><div class="card">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#train-csv" aria-controls="train-csv" role="tab" data-toggle="tab">Training Data</a></li>
+            <li role="presentation"><a href="#results-csv" aria-controls="results-csv" role="tab" data-toggle="tab">Results</a></li>
+            <!--<li role="presentation"><a href="#graphs" aria-controls="graphs" role="tab" data-toggle="tab">Predict</a></li>-->
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="train-csv">
+              <div class="container" id="csv-table">
+                <!-- CSV LOADS HERE -->
+              </div>
+            </div>
+            
+            <div role="tabpanel" class="tab-pane" id="results-csv">
+              <div class="container" id="res-table">
+                <!-- CSV RESULTS LOADS HERE -->
+              </div>
+            </div>
+            <!--<div role="tabpanel" class="tab-pane" id="graphs">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</div>-->
+        </div>
+  </div>
+    </div>
+	</div>
+</div>
+
+<!-- Modal -->
+  <div class="modal fade" id="graphModal" role="dialog">
+    <div class="modal-lg modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Model: <code id="modal-title"></code></h4>
+        </div>
+        <div class="modal-body">
+            <img src="../res/img/not_found.jpg" id="modal-image">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+          <h5 class="pull-left" id="new-req-msg"> </h5>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+
+
