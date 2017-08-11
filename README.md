@@ -1,14 +1,15 @@
 # flasktest
 
+# Setup Docker container:
+    1. Clone this repo and theOracle repo. 
+    2. From inside the flasktest directory, run the following command on terminal
 
-1. Clone de repo.
-2. Run 
+            sh fastSetup.sh [path_to_theoracle_dir] [path_to_flasktest_dir]
 
-sh fastSetup.sh [path_to_theoracle_dir] [path_to_flasktest_dir]
+# For Web App:
+    After setting up the container:
 
-For Web App:
-
-open the file flasktest/web_app/home/home.html
+        open the file flasktest/web_app/home/home.html
 
 
 <!-- 
