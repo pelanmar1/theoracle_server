@@ -7,9 +7,9 @@
             sh fastSetup.sh [path_to_theoracle_dir] [path_to_flasktest_dir]
 
 # For Web App:
-    After setting up the container:
-
-        open the file flasktest/web_app/home/home.html
+    After setting up the container open the file:
+    
+            flasktest/web_app/home/home.html
 
 
 <!-- 
