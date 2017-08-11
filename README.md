@@ -1,5 +1,17 @@
 # flasktest
 
+
+1. Clone de repo.
+2. Run 
+
+sh fastSetup.sh [path_to_theoracle_dir] [path_to_flasktest_dir]
+
+For Web App:
+
+open the file flasktest/web_app/home/home.html
+
+
+<!-- 
 ```
 docker build -t flask-tutorial:latest .
 ```
@@ -31,7 +43,7 @@ buildRunCheck.sh - Build the docker image, run it and check that it's running wi
 POST command with curl:
 
 curl -X POST -F "file=@/path/to/file" localhost:5000
-```
+``` -->
 
 
 TODO LIST
