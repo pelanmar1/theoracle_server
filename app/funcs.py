@@ -24,8 +24,12 @@ def ensure_dir(file_path):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def getResultsDir(rid):
-    return "/app/data/results/" + rid + "/"
+def getResultsDir(rid=None):
+    if rid is not None:
+        return "/app/data/results/" + rid + "/"
+    else:
+        return "/app/data/results/"
+
 
 def getRequestsDir():
     REQUESTS_FOLDER = "/app/data/requests/"
@@ -38,6 +42,11 @@ def deleteRequest(rid):
     fn = getRequestFn(rid)
     os.remove(fn)
 
+def deleteResult(rid):
+    if(rid!= None):
+        fn = getResultsDir(rid)
+        os.remove(fn)
+
 def getModelsDir(rid):
     dir = getResultsDir(rid) + "models/"
     ensure_dir(dir)
@@ -45,6 +54,19 @@ def getModelsDir(rid):
 
 def getResultsFn(rid):
     return getResultsDir(rid) + "results.csv"
+
+def getImagesDir(rid):
+    dir = getResultsDir(rid) + "images/"
+    ensure_dir(dir)
+    return dir
+
+def getImageFn(rid,modelId):
+    dir = getImagesDir(rid) + str(modelId) + '.png'
+    if os.path.isfile(dir):
+        return dir
+    else:
+        writeLogMsg('The requested model image does not exist.')
+        return None
 
 def getRequestTrainingDataFn(rid):
     return getResultsDir(rid) + "train.csv"
@@ -55,6 +77,12 @@ def getPendingRequestIds():
     files1 = [file.replace('.txt', '') for file in files]
     rids = [file.replace(dir, '') for file in files1]
     return rids
+
+def getDoneRequestIds():
+    dir = getResultsDir()[:-1]
+    rids =[name for name in os.listdir(dir) if os.path.isdir(dir+'/'+name) and os.path.isfile(dir+'/'+name+'/results.csv')]
+    return rids
+
 
 def getNextRequestId():
     rids = getPendingRequestIds()
@@ -124,7 +152,28 @@ def getModels(rid):
     else:
         return None
 
+def getRequestResults(req_id):
+    fn = funcs.getResultsFn(req_id)
+    writeLogMsg("Loading file " + fn)
+    if os.path.isfile(fn):
+        df = pd.read_csv(fn, index_col=0, header=None, parse_dates=True)
+        writeLogMsg("Done")
+        return df
+    else:
+        writeLogMsg("ERROR: File does not exist\n"+fn)
+        return None
+
+def cleanDFHeaders(df):
+    if df is not None and df.shape[0]>0 and df.shape[1]>0:
+            #first_cell = df.iloc[0][1]
+            #funcs.writeLogMsg(str(df.iloc[0]))
+            #if type(first_cell) == 'str':
+            df = df.iloc[1:][:]
+    return df
     
+
+
+
 # """
 #  Input:
 #   index = a 0 to n based index numbering the samples

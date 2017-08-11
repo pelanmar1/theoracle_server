@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify,send_file
 import pandas
 import numpy as np
 import os
@@ -17,6 +17,7 @@ from fbProphet import fbProphet
 import subprocess
 
 tmp_dir = "/app/data/tmp/"
+RESULTS_DIR = "/app/data/results/"
 
 app = Flask(__name__)
 CORS(app)
@@ -33,8 +34,12 @@ def runTraining(rid):
     train_df = funcs.getRequestTrainingData(rid)
     if train_df is not None:
         models_dir = funcs.getModelsDir(rid)
+        images_dir = funcs.getImagesDir(rid)
+        results_dir = funcs.getResultsDir(rid)
         funcs.writeLogMsg("Models " + models_dir)
-        results_df = predictionAPI.doTrainRequest(rid, models_dir, train_df, funcs.writeLogMsg)
+        funcs.writeLogMsg(train_df.iloc[0])
+        funcs.writeLogMsg(str(rid))
+        results_df = predictionAPI.doTrainRequest(models_dir,results_dir, train_df, funcs.writeLogMsg,images_dir=images_dir)
         funcs.saveResultsDF(rid, results_df)
         funcs.writeLogMsg(results_df.head())
         jsonDict = {'done': True, 'message': ""}
@@ -66,6 +71,7 @@ def handlePost():
            file.save(dest_fn)
            funcs.writeLogMsg("\tUploaded File " + dest_fn)
            df = pandas.read_csv(dest_fn, header=None, index_col=0, parse_dates=True)
+           df = funcs.cleanDFHeaders(df)
            df.columns = ["y"]
            funcs.writeLogMsg("\tRead csv")
            #df = funcs.cleanUpDf(df)
@@ -124,7 +130,7 @@ def handlePredictRequest(rid, mid):
     fn = tmp_dir+file.filename
     file.save(fn)
     funcs.writeLogMsg("readin File " + fn)
-    predict_dates_df = pandas.read_csv(tmp_dir+file.filename, index_col=0)
+    predict_dates_df = pandas.read_csv(fn, index_col=0)
     predict_dates_df.columns = ["date"]
     funcs.writeLogMsg("Predict Dates")
     funcs.writeLogMsg(predict_dates_df.head())
@@ -132,7 +138,7 @@ def handlePredictRequest(rid, mid):
     results_fn = funcs.getResultsFn(rid)
     models_dir = funcs.getModelsDir(rid)
     predictions_df = predictionAPI.doPredictionRequest(results_fn, models_dir,
-                                                       rid, mid,
+                                                     mid,
                                                       predict_dates_df,
                                                        funcs.writeLogMsg)
     funcs.writeLogMsg("Predictions")
@@ -144,14 +150,71 @@ def handlePredictRequest(rid, mid):
 #------------------------------
 @app.route('/getPending')
 def handleGetPendingRequest():
-    funcs.writeLogMsg("handleAllModels")
+    funcs.writeLogMsg("handleGetPendingModels")
     rids = funcs.getPendingRequestIds()
     if rids is not None:
        jsonDict = jsonify(results = rids)
        funcs.writeLogMsg(str(jsonDict))
        return jsonDict
     else:
-       return jsonify({'Message':'There are no models pending'})
+       return jsonify({'Message':'There are no models pending.'})
+
+@app.route('/getDone')
+def handleGetDoneRequest():
+    funcs.writeLogMsg("handleGetDoneModels")
+    rids = funcs.getDoneRequestIds()
+    if rids is not None:
+       jsonDict = jsonify(results = rids)
+       funcs.writeLogMsg(str(jsonDict))
+       return jsonDict
+    else:
+       return jsonify({'Message':'There are no models finished yet.'})
+
+#------------------------------
+@app.route('/getTrainHTML/<string:rid>')
+def handleGetTrainHTMLRequest(rid):
+    if rid is not None:
+        funcs.writeLogMsg("handleGetCSVRequest")
+        train_df = funcs.getRequestTrainingData(rid)
+        if train_df is not None:
+            train_df.reset_index(inplace=True)
+            train_df.columns = ['Date','Value']
+            train_df = train_df.ix[1:]
+            html = train_df.to_html(header=True,index=False)
+            html = html.replace('dataframe','table table-condensed')
+            jsonDict = jsonify(trainCSV = html)
+            #funcs.writeLogMsg(jsonDict)
+            return jsonDict
+        else:
+            return jsonify({'Message':'Models not ready or don\'t exist, check with /status/<rid>'})
+@app.route('/getResultsHTML/<string:rid>')
+def handleGetResultsHTMLRequest(rid):
+    if rid is not None:
+        funcs.writeLogMsg("handleGetCSVRequest")
+        res_df = funcs.getRequestResults(rid)
+        if res_df is not None:
+            res_df = res_df.ix[1:]
+            res_df.columns = ['Model','Algo','Params.','MSE','Median Abs. Err.','MAE']
+            html = res_df.to_html(header=True,index=False)
+            html = html.replace('dataframe','table table-condensed')
+            jsonDict = jsonify(resTable = html)
+            #funcs.writeLogMsg(jsonDict)
+            return jsonDict
+        else:
+            return jsonify({'Message':'Models not ready or don\'t exist, check with /status/<rid>'})
+
+@app.route('/getModelImage/<string:rid>/<string:modelid>')
+def handleGetModelImageRequest(rid,modelid):
+    if rid is not None and modelid is not None:
+        funcs.writeLogMsg("handleGetModelImageRequest")
+        image_fn = funcs.getImageFn(rid,modelid)
+        if image_fn is not None:
+            return send_file(image_fn, mimetype='image/gif') 
+        else:
+            return jsonify({'Message':'The requested image does not exist.'})
+
+
+#------------------------------
 
 #------------------------------
 
