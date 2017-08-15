@@ -51,9 +51,10 @@ RUN apt-get install cron -y
 # ADD cron.sh /var/scripts/cron.sh
 
 # Use the crontab file.
- #RUN crontab /var/conf/cron.conf
+# RUN crontab /var/conf/cron.conf
 
- RUN service cron start
+RUN service cron start
+
 
 #-------------------------------
 # Requirements

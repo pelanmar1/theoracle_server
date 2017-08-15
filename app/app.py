@@ -150,22 +150,22 @@ def handlePredictRequest(rid, mid):
 #------------------------------
 @app.route('/getPending')
 def handleGetPendingRequest():
-    funcs.writeLogMsg("handleGetPendingModels")
+    #funcs.writeLogMsg("handleGetPendingModels")
     rids = funcs.getPendingRequestIds()
     if rids is not None:
        jsonDict = jsonify(results = rids)
-       funcs.writeLogMsg(str(jsonDict))
+       #funcs.writeLogMsg(str(jsonDict))
        return jsonDict
     else:
        return jsonify({'Message':'There are no models pending.'})
 
 @app.route('/getDone')
 def handleGetDoneRequest():
-    funcs.writeLogMsg("handleGetDoneModels")
+    #funcs.writeLogMsg("handleGetDoneModels")
     rids = funcs.getDoneRequestIds()
     if rids is not None:
        jsonDict = jsonify(results = rids)
-       funcs.writeLogMsg(str(jsonDict))
+       #funcs.writeLogMsg(str(jsonDict))
        return jsonDict
     else:
        return jsonify({'Message':'There are no models finished yet.'})
@@ -193,7 +193,7 @@ def handleGetResultsHTMLRequest(rid):
         funcs.writeLogMsg("handleGetCSVRequest")
         res_df = funcs.getRequestResults(rid)
         if res_df is not None:
-            res_df = res_df.ix[1:]
+            res_df = res_df.iloc[1:][:]
             res_df.columns = ['Model','Algo','Params.','MSE','Median Abs. Err.','MAE']
             html = res_df.to_html(header=True,index=False)
             html = html.replace('dataframe','table table-condensed')

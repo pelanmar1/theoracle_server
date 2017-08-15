@@ -27,10 +27,17 @@ else
     echo "Image already built."
 fi
 
-# run container
+# stop running container if exists
+echo "Checking if container is already running."
+cont=$(docker ps  --filter="name=predictapi" -aq)
+if ! [[ -z $cont ]]; then
+    docker stop predictapi
+    docker rm predictapi
+    echo "Stoping current running instance."
+fi
 
-docker stop predictapi
-docker rm predictapi
+# run container
+echo "Running new instance"
 docker run -i -p 5000:5000 \
 	--name predictapi  \
 	-v $PATH_ORACLE":/app/src" \
