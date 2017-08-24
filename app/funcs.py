@@ -152,6 +152,13 @@ def getModels(rid):
     else:
         return None
 
+
+def list2Dataframe(lst):
+    df = pd.DataFrame({'date':lst})
+    df['date']=pd.to_datetime(df['date'])
+    return df
+
+
 def getRequestResults(req_id):
     fn = funcs.getResultsFn(req_id)
     writeLogMsg("Loading file " + fn)
@@ -170,32 +177,31 @@ def cleanDFHeaders(df):
             #if type(first_cell) == 'str':
             df = df.iloc[1:][:]
     return df
-    
 
 
+'''
 
-# """
-#  Input:
-#   index = a 0 to n based index numbering the samples
-#   Col 1 = A timestamp or date (2017-07-0)
-#   Col 2 = The y floating point values
-#  Output:
-#   index = a 0 to n based index numbering the samples
-#   date = A Datetime (2017-07-0)
-#   y = The y floating point values
-# """
-# def cleanUpDf(df):
-#     writeLogMsg("Before Cleaning")
-#     writeLogMsg(df.head())
-#     writeLogMsg(df.dtypes)
-#     a = [isinstance(x, np.int64) for x in df[1].values]
-#     if a.count(False):
-#         # Index is all timestamps
-#         df[1] = df[1].map(datetime.datetime.fromtimestamp)
-#
-#     df.columns = ["date", "y"]
-#
-#     writeLogMsg("After Cleaning")
-#     writeLogMsg(df.head())
-#
-#     return df
+ Input:
+  index = a 0 to n based index numbering the samples
+  Col 1 = A timestamp or date (2017-07-0)
+  Col 2 = The y floating point values
+ Output:
+  index = a 0 to n based index numbering the samples
+  date = A Datetime (2017-07-0)
+  y = The y floating point values
+def cleanUpDf(df):
+    writeLogMsg("Before Cleaning")
+    writeLogMsg(df.head())
+    writeLogMsg(df.dtypes)
+    a = [isinstance(x, np.int64) for x in df[1].values]
+    if a.count(False):
+        # Index is all timestamps
+        df[1] = df[1].map(datetime.datetime.fromtimestamp)
+
+    df.columns = ["date", "y"]
+
+    writeLogMsg("After Cleaning")
+    writeLogMsg(df.head())
+
+
+'''

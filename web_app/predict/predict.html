@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Outlook Mobile Prediction Service</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/flatpickr/dist/flatpickr.min.css">
+  <script src="https://unpkg.com/flatpickr"></script>  
+  <script src="predict.js" type="text/javascript"></script>
+  
+
+  <!-- LOAD NAVBAR --> 
+  <script type="text/javascript">
+    $(document).ready(function() {
+        $('#nav-container').load('../navbar/navbar.html');});
+    </script>
+  <div class="container-fluid" id="nav-container"></div>
+  <!-- -->
+
+</head>
+<body>
+  
+
+
+  
+
+
+<!-- CREATE REQUEST -->
+
+<div class="container">
+        
+  <!-- Modal -->
+  <div class="modal fade" id="reqModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h2 class="modal-title">Create Request</h2>
+        </div>
+        <div class="modal-body">
+            <br>
+            <form  id="uploadFile" method="post" enctype="multipart/form-data" onsubmit="return false;">
+                <h4>Select csv with training data to upload:</h4>
+                <br>
+                <input type="file" name="file" id="fileToUpload">
+                <br>
+                <input type="submit" value="Upload File" name="submit">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="window.location.reload();">Close</button>
+          <h5 class="pull-left" id="new-req-msg"> </h5>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+
+
+
+
+<div class="container">
+    <h1>Predict</h1>
+
+    <div>
+        <h4 style="display:inline-block;">Request/Model<h3 style="display:inline-block; margin-left:10px;"><code id="curr_req_model_id"></code></h4></h1>
+        <h5>Select days to predict</h5>
+    </div>
+
+    <input id="datepicker"></input>
+
+    <button id="predict" type="button" class="btn btn-primary btn-md">Predict</button>
+    <br>
+    <p id="alert_msg" class="text-danger">Please select at least one date for predicting.</p>
+    <br>
+    <br>
+    <h3>Predictions:</h3>
+    <div id="res-table">
+
+    </div>  
+    
+
+
+</div>

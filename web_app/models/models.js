@@ -4,10 +4,10 @@ const MODEL_IMG_URL ="http://localhost:5000/getModelImage/"
 
 var current_req_id = sessionStorage.getItem('current_req_id');
 $(document).ready(function(){
-    setCurrentReqIdTitle()
-    loadTrainingDataCSVs()
-    loadResultsDataFrames()
-    
+    setCurrentReqIdTitle();
+    loadTrainingDataCSVs();
+    loadResultsDataFrames();
+    useThisModelToPredict();
     
 });
 
@@ -91,4 +91,26 @@ function buildImageModal(rid,mid){
     $('#modal-title').text(imgTitle);
     $('#graphModal').modal();
 
+}
+
+
+
+function addItemClickListener(){
+    $('.list-group-item').click(function(e) {
+        $(this).addClass('active').siblings().removeClass('active');
+        sessionStorage.setItem('current_req_id', $(this).text());
+    });
+    
+}
+
+function useThisModelToPredict(){
+    
+    var button = $('#predict-btn')
+    var req_model_id=getCurrentReqId();
+    button.click(function(e){
+        req_model_id=$('#modal-title').text()
+        sessionStorage.setItem('current_req_mod_id', req_model_id);
+        $(location).attr('href', './../predict/predict.html');
+            
+    });
 }

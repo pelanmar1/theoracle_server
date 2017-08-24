@@ -33,7 +33,7 @@ RUN pip install pystan
 #RUN pip install Flask
 
 RUN apt-get -y install libevent-dev
-RUN conda install gcc
+RUN apt-get install gcc
 RUN pip install fbprophet
 RUN pip install pyflux
 RUN pip install -U flask-cors

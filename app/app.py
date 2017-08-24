@@ -8,6 +8,9 @@ import sys
 import glob
 import funcs
 import pickle
+import json
+import ast
+
 from flask_cors import CORS, cross_origin
 
 
@@ -126,25 +129,27 @@ def handleModelsRequest(rid):
 @app.route('/predict/<string:rid>/<string:mid>', methods=['POST'])
 def handlePredictRequest(rid, mid):
     funcs.writeLogMsg("handlePredictRequest")
-    file = request.files['file']
-    fn = tmp_dir+file.filename
-    file.save(fn)
-    funcs.writeLogMsg("readin File " + fn)
-    predict_dates_df = pandas.read_csv(fn, index_col=0)
-    predict_dates_df.columns = ["date"]
-    funcs.writeLogMsg("Predict Dates")
-    funcs.writeLogMsg(predict_dates_df.head())
-
+    futureVals = json.dumps(request.get_json(force=True)['values'])
+    futureVals = ast.literal_eval(futureVals)
+    predict_dates_df = funcs.list2Dataframe(futureVals)
+    jsonStr = jsonify({'result':futureVals})
+    funcs.writeLogMsg(str(predict_dates_df))
     results_fn = funcs.getResultsFn(rid)
-    models_dir = funcs.getModelsDir(rid)
-    predictions_df = predictionAPI.doPredictionRequest(results_fn, models_dir,
-                                                     mid,
-                                                      predict_dates_df,
-                                                       funcs.writeLogMsg)
-    funcs.writeLogMsg("Predictions")
-    funcs.writeLogMsg(predictions_df.head())
-
-    jsonStr = predictions_df.to_json(date_format='iso', orient='split')
+    funcs.writeLogMsg("Loading training data" )
+    df = funcs.getRequestTrainingData(rid)
+    funcs.writeLogMsg("Starting prediction")
+    image_fn = None
+    result_df =predictionAPI.doPredictionRequest(df,results_fn, mid, predict_dates_df,image_fn, funcs.writeLogMsg)
+    if result_df is not None:
+        funcs.writeLogMsg(result_df)
+        result_df.insert(0, 'date', result_df.index)
+        html = result_df.to_html(header=True,index=False)
+        html = html.replace('dataframe','table table-condensed')
+        jsonDict = jsonify(resTable = html)
+        return jsonDict
+    else:
+        return jsonify({'Message':'There was a problem. Please try again.'})                               
+    
     return jsonStr
 
 #------------------------------
@@ -193,8 +198,8 @@ def handleGetResultsHTMLRequest(rid):
         funcs.writeLogMsg("handleGetCSVRequest")
         res_df = funcs.getRequestResults(rid)
         if res_df is not None:
+            res_df.columns = res_df.iloc[0][:].values
             res_df = res_df.iloc[1:][:]
-            res_df.columns = ['Model','Algo','Params.','MSE','Median Abs. Err.','MAE']
             html = res_df.to_html(header=True,index=False)
             html = html.replace('dataframe','table table-condensed')
             jsonDict = jsonify(resTable = html)
